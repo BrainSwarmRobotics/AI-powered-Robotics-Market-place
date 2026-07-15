@@ -15,10 +15,10 @@ function App() {
           <img src={reactLogo} className="framework" alt="React logo" />
           <img src={viteLogo} className="vite" alt="Vite logo" />
         </div>
-         <div>
-          <h1>Hello, Welcome to our Robotics Marketplace!</h1>
+        <div>
+          <h1>Get started</h1>
           <p>
-            We are building a MERN stack platform.
+            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
           </p>
         </div>
         <button
