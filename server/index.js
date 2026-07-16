@@ -5,6 +5,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const path = require('path'); // Added path helper
 const connectDB = require('./config/db');
+const authRoutes = require('./routes/authRoutes');
 
 // Load environment variables from .env
 dotenv.config();
@@ -13,12 +14,16 @@ console.log("Checking loaded URI:", process.env.MONGODB_URI ? "Found! " : "NOT F
 const app = express();
 // Connect to MongoDB Atlas
 connectDB();
+
 // a simple test route to make sure the server is alive
 app.get('/api/test', (req, res) => {
     res.json({ message: "Hello from the Robotics Backend Server! " });
 });
 // listening for requests on port
 app.use(express.json()); // allows server to read JSON bodies
+// Use the authentication routes
+app.use('/api/auth', authRoutes);
+//listen to port
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
