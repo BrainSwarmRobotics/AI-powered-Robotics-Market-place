@@ -6,6 +6,7 @@ const dotenv = require('dotenv');
 const path = require('path'); // Added path helper
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
+const productRoutes = require('./routes/productRoutes');
 
 // Load environment variables from .env
 dotenv.config();
@@ -19,10 +20,12 @@ connectDB();
 app.get('/api/test', (req, res) => {
     res.json({ message: "Hello from the Robotics Backend Server! " });
 });
-// listening for requests on port
+// listening for requests on     port
 app.use(express.json()); // allows server to read JSON bodies
 // Use the authentication routes
 app.use('/api/auth', authRoutes);
+// Use the product routes
+app.use('/api/products', productRoutes);
 //listen to port
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
