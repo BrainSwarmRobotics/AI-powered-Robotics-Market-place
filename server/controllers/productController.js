@@ -1,9 +1,21 @@
 const Product = require("../models/Product");
+const cloudinary = require("../config/cloudinary"); // added this import at the top (needed later for delete)
 
 // Create Product
 const createProduct = async (req, res) => {
   try {
-    const product = await Product.create(req.body);
+    // Map uploaded files into the format your schema expects
+    const imageData = req.files
+      ? req.files.map((file) => ({
+          url: file.path,
+          public_id: file.filename,
+        }))
+      : [];
+
+    const product = await Product.create({
+      ...req.body,       // name, manufacturer, category, modelNumber, description, price, stock
+      images: imageData, //  added the images array
+    });
 
     res.status(201).json({
       success: true,
