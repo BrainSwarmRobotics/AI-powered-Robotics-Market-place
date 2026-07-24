@@ -1,3 +1,6 @@
+const categoryRoutes = require("./routes/categoryRoutes");
+app.use("/api/products", productRoutes);
+app.use("/api/categories", categoryRoutes);
 const dns = require('dns');
 dns.setServers(['8.8.8.8', '8.8.4.4']);
 

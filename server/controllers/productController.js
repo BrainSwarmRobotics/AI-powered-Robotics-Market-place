@@ -33,13 +33,55 @@ const createProduct = async (req, res) => {
 // Get All Products
 const getProducts = async (req, res) => {
   try {
-    const products = await Product.find({});
+
+    // Search
+    const keyword = req.query.keyword
+      ? {
+          name: {
+            $regex: req.query.keyword,
+            $options: "i",
+          },
+        }
+      : {};
+
+    // Filter
+    const filter = { ...keyword };
+
+    if (req.query.category) {
+      filter.category = req.query.category;
+    }
+
+    if (req.query.stock) {
+      filter.stock = { $gte: Number(req.query.stock) };
+    }
+
+    if (req.query.maxPrice) {
+      filter.price = { $lte: Number(req.query.maxPrice) };
+    }
+
+    // Pagination
+    const page = Number(req.query.page) || 1;
+    const limit = 10;
+    const skip = (page - 1) * limit;
+
+    // Sorting
+    const sort = req.query.sort || "createdAt";
+
+    const products = await Product.find(filter)
+      .sort(sort)
+      .skip(skip)
+      .limit(limit);
+
+    const totalProducts = await Product.countDocuments(filter);
 
     res.status(200).json({
       success: true,
-      count: products.length,
+      totalProducts,
+      currentPage: page,
+      totalPages: Math.ceil(totalProducts / limit),
       products,
     });
+
   } catch (error) {
     res.status(500).json({
       success: false,
