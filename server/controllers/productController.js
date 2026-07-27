@@ -145,7 +145,7 @@ const updateProduct = async (req, res) => {
 // Delete Product
 const deleteProduct = async (req, res) => {
   try {
-    const product = await Product.findByIdAndDelete(req.params.id);
+    const product = await Product.findById(req.params.id);
 
     if (!product) {
       return res.status(404).json({
@@ -154,9 +154,94 @@ const deleteProduct = async (req, res) => {
       });
     }
 
+    // Delete each associated image from Cloudinary
+    for (const img of product.images) {
+      if (img.public_id) {
+        await cloudinary.uploader.destroy(img.public_id);
+      }
+    }
+
+    await product.deleteOne();
+
     res.status(200).json({
       success: true,
       message: "Product deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+
+
+
+// Add Images to Existing Product
+const addProductImages = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    const newImages = req.files
+      ? req.files.map((file) => ({
+          url: file.path,
+          public_id: file.filename,
+        }))
+      : [];
+
+    product.images.push(...newImages);
+    await product.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Images added successfully",
+      product,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Remove a Single Image from a Product
+const removeProductImage = async (req, res) => {
+  try {
+    const { id, public_id } = req.params;
+
+    const product = await Product.findById(id);
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    // Cloudinary public_id contains a "/" (e.g. products/xxxx), so it comes URL-encoded in the route param
+    const decodedPublicId = decodeURIComponent(public_id);
+
+    await cloudinary.uploader.destroy(decodedPublicId);
+
+    product.images = product.images.filter(
+      (img) => img.public_id !== decodedPublicId
+    );
+
+    await product.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Image removed successfully",
+      product,
     });
   } catch (error) {
     res.status(500).json({
@@ -172,4 +257,6 @@ module.exports = {
   getProductById,
   updateProduct,
   deleteProduct,
+  addProductImages,
+  removeProductImage,
 };

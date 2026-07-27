@@ -6,35 +6,55 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
     manufacturer: {
       type: String,
       required: true,
     },
-
     category: {
       type: String,
       required: true,
     },
-
-    modelNumber: {
-      type: String,
-    },
-
     description: {
       type: String,
     },
-
-    price: {
-      type: Number,
-      required: true,
+    processor: {
+      type: String,
     },
-
+    sensors: {
+      type: String,
+    },
+    battery: {
+      type: String,
+    },
+    maxSpeed: {
+      type: String,
+    },
+    warranty: {
+      type: String,
+    },
     stock: {
       type: Number,
       default: 0,
     },
-
+    communicationProtocols: {
+      type: String,
+    },
+    price: {
+      type: Number,
+      required: true,
+    },
+    utility: {
+      type: String,
+    },
+    educationalApplications: {
+      type: String,
+    },
+    researchApplications: {
+      type: String,
+    },
+    documentation: {
+      type: String, // keeping as String ("Yes"/"No") to avoid conversion complexity
+    },
     images: [
       {
         url: String,

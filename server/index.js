@@ -1,21 +1,23 @@
-const categoryRoutes = require("./routes/categoryRoutes");
-app.use("/api/products", productRoutes);
-app.use("/api/categories", categoryRoutes);
+const dotenv = require('dotenv');
+// Load environment variables from .env
+dotenv.config();
+
 const dns = require('dns');
 dns.setServers(['8.8.8.8', '8.8.4.4']);
 
 const express = require('express');
-const dotenv = require('dotenv');
 const path = require('path'); // Added path helper
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
+const categoryRoutes = require('./routes/categoryRoutes');
 
-// Load environment variables from .env
-dotenv.config();
+
 // Debug line to see if Node is actually reading the URI 
 console.log("Checking loaded URI:", process.env.MONGODB_URI ? "Found! " : "NOT FOUND (Undefined) ");
+
 const app = express();
+
 // Connect to MongoDB Atlas
 connectDB();
 
@@ -23,13 +25,17 @@ connectDB();
 app.get('/api/test', (req, res) => {
     res.json({ message: "Hello from the Robotics Backend Server! " });
 });
-// listening for requests on     port
+
 app.use(express.json()); // allows server to read JSON bodies
+
 // Use the authentication routes
 app.use('/api/auth', authRoutes);
 // Use the product routes
 app.use('/api/products', productRoutes);
-//listen to port
+// Use the category routes
+app.use('/api/categories', categoryRoutes);
+
+// listen to port
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
