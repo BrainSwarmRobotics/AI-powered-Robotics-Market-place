@@ -17,6 +17,22 @@ export const fetchProducts = createAsyncThunk(
   }
 );
 
+// Fetches a single product by ID (needed for ProductDetail page, Day 3 — adding now so it's ready)
+export const fetchProductById = createAsyncThunk(
+  'products/fetchProductById',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await API.get(`/products/${id}`);
+      return response.data.product;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || 'Failed to fetch product'
+      );
+    }
+  }
+);
+
+
 const productSlice = createSlice({
   name: 'products',
   initialState: {
@@ -26,9 +42,16 @@ const productSlice = createSlice({
     totalPages: 1,
     loading: false,
     error: null,
+
+    selectedProduct: null,       // for ProductDetail page
+    detailLoading: false,
+    detailError: null,
   },
   reducers: {
-    // Place for simple synchronous actions later (e.g. clearProducts)
+    clearSelectedProduct: (state) => {
+      state.selectedProduct = null;
+      state.detailError = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -46,8 +69,22 @@ const productSlice = createSlice({
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+            // fetchProductById (single)
+      .addCase(fetchProductById.pending, (state) => {
+        state.detailLoading = true;
+        state.detailError = null;
+      })
+      .addCase(fetchProductById.fulfilled, (state, action) => {
+        state.detailLoading = false;
+        state.selectedProduct = action.payload;
+      })
+      .addCase(fetchProductById.rejected, (state, action) => {
+        state.detailLoading = false;
+        state.detailError = action.payload;
       });
   },
 });
 
+export const { clearSelectedProduct } = productSlice.actions;
 export default productSlice.reducer;
