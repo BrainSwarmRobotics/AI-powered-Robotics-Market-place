@@ -6,6 +6,7 @@ const dns = require('dns');
 dns.setServers(['8.8.8.8', '8.8.4.4']);
 
 const express = require('express');
+const cors = require('cors');
 const path = require('path'); // Added path helper
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
@@ -20,7 +21,7 @@ const app = express();
 
 // Connect to MongoDB Atlas
 connectDB();
-
+app.use(cors());
 // a simple test route to make sure the server is alive
 app.get('/api/test', (req, res) => {
     res.json({ message: "Hello from the Robotics Backend Server! " });
