@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProductById, clearSelectedProduct } from "../redux/slices/productSlice";
+import { toggleWishlist } from "../redux/slices/wishlistSlice";
+import { toggleCompare } from "../redux/slices/compareSlice";
 
 function ProductDetail() {
   const { id } = useParams();
@@ -10,6 +12,16 @@ function ProductDetail() {
   const { selectedProduct: product, detailLoading, detailError } = useSelector(
     (state) => state.products
   );
+
+  const wishlistItems = useSelector((state) => state.wishlist.items);
+  const compareItems = useSelector((state) => state.compare.items);
+
+  const isWishlisted = product
+    ? wishlistItems.some((p) => p._id === product._id)
+    : false;
+  const isComparing = product
+    ? compareItems.some((p) => p._id === product._id)
+    : false;
 
   useEffect(() => {
     dispatch(fetchProductById(id));
@@ -93,6 +105,38 @@ function ProductDetail() {
           <p style={{ color: "#00d084", fontSize: "1.5rem", fontWeight: "bold" }}>
             Rs. {product.price?.toLocaleString()}
           </p>
+
+          {/* Wishlist / Compare Buttons */}
+          <div style={{ display: "flex", gap: "1rem", margin: "1rem 0" }}>
+            <button
+              onClick={() => dispatch(toggleWishlist(product))}
+              style={{
+                background: isWishlisted ? "#e11d48" : "#333",
+                color: "white",
+                border: "none",
+                padding: "10px 18px",
+                borderRadius: "6px",
+                cursor: "pointer",
+              }}
+            >
+              {isWishlisted ? "❤️ Remove from Wishlist" : "🤍 Add to Wishlist"}
+            </button>
+
+            <button
+              onClick={() => dispatch(toggleCompare(product))}
+              style={{
+                background: isComparing ? "#4f46e5" : "#333",
+                color: "white",
+                border: "none",
+                padding: "10px 18px",
+                borderRadius: "6px",
+                cursor: "pointer",
+              }}
+            >
+              {isComparing ? "✓ Added to Compare" : "+ Add to Compare"}
+            </button>
+          </div>
+
           <p style={{ margin: "1rem 0", color: "#ccc" }}>{product.description}</p>
 
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
