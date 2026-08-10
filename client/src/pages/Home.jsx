@@ -21,11 +21,10 @@ export default function Home() {
   }, [dispatch]);
 
   const featured = products.slice(0, 4);
-  const heroProduct = products.find((p) => p.images?.length) || products[0];
 
   return (
     <div className="flex flex-col gap-14 py-8 sm:py-12">
-      <Hero heroProduct={heroProduct} />
+      <Hero />
       <Categories categories={categories} loading={categoriesLoading} />
       <FeaturedProducts products={featured} loading={productsLoading} />
     </div>
