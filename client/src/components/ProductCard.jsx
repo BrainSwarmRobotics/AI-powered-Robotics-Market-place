@@ -1,96 +1,81 @@
-import { Link } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { toggleWishlist } from "../redux/slices/wishlistSlice";
-import { toggleCompare } from "../redux/slices/compareSlice";
+import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { Scale } from 'lucide-react';
+import ImagePlaceholder from './ImagePlaceholder';
+import WishlistButton from './ui/WishlistButton';
+import { toggleWishlist } from '../redux/slices/wishlistSlice';
+import { toggleCompare } from '../redux/slices/compareSlice';
 
-function ProductCard({ product }) {
+function formatPrice(price) {
+  if (price == null) return '—';
+  return new Intl.NumberFormat('en-PK', {
+    style: 'currency',
+    currency: 'PKR',
+    maximumFractionDigits: 0,
+  }).format(price);
+}
+
+export default function ProductCard({ product }) {
   const dispatch = useDispatch();
-
   const wishlistItems = useSelector((state) => state.wishlist.items);
   const compareItems = useSelector((state) => state.compare.items);
 
-  const isWishlisted = wishlistItems.some((p) => p._id === product._id);
-  const isComparing = compareItems.some((p) => p._id === product._id);
-
-  const handleWishlistClick = () => {
-    dispatch(toggleWishlist(product));
-  };
-
-  const handleCompareClick = () => {
-    dispatch(toggleCompare(product));
-  };
+  const isWishlisted = wishlistItems.some((i) => i._id === product._id);
+  const isComparing = compareItems.some((i) => i._id === product._id);
+  const image = product.images?.[0]?.url;
 
   return (
-    <div className="product-card">
-      <div className="product-image" style={{ position: "relative" }}>
-        {product.images?.length > 0 && product.images[0]?.url ? (
-          <img src={product.images[0].url} alt={product.name} />
-        ) : (
-          <div className="no-image">No Image Available</div>
-        )}
-
-        <button
-          onClick={handleWishlistClick}
-          style={{
-            position: "absolute",
-            top: "10px",
-            right: "10px",
-            background: "rgba(0,0,0,0.6)",
-            border: "none",
-            borderRadius: "50%",
-            width: "36px",
-            height: "36px",
-            fontSize: "18px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            zIndex: 10,
-          }}
-        >
-          {isWishlisted ? "❤️" : "🤍"}
-        </button>
+    <div className="group relative flex flex-col overflow-hidden rounded-[var(--radius-panel)] border border-neutral-200 bg-surface transition-shadow hover:shadow-md">
+      <div className="absolute right-2 top-2 z-10">
+        <WishlistButton
+          active={isWishlisted}
+          onClick={() => dispatch(toggleWishlist(product))}
+        />
       </div>
 
-      <div className="product-info">
-        <h3>{product.name}</h3>
+      <Link to={`/products/${product._id}`} className="block">
+        <div className="aspect-square w-full bg-surface-alt">
+          {image ? (
+            <img
+              src={image}
+              alt={product.name}
+              className="h-full w-full object-cover"
+              loading="lazy"
+            />
+          ) : (
+            <ImagePlaceholder className="h-full w-full" />
+          )}
+        </div>
+      </Link>
 
-        <p>
-          <strong>Category:</strong> {product.category}
-        </p>
-
-        <p className="price">
-          Rs. {product.price}
-        </p>
-
-        <label
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-            fontSize: "13px",
-            color: "#ccc",
-            margin: "8px 0",
-            cursor: "pointer",
-          }}
-        >
-          <input
-            type="checkbox"
-            checked={isComparing}
-            onChange={handleCompareClick}
-          />
-          Compare
-        </label>
-
+      <div className="flex flex-1 flex-col gap-1 p-3">
+        {product.category && (
+          <span className="text-xs font-medium uppercase tracking-wide text-neutral-600">
+            {product.category}
+          </span>
+        )}
         <Link
           to={`/products/${product._id}`}
-          className="details-btn"
+          className="line-clamp-2 text-sm font-semibold text-ink hover:text-accent"
         >
-          View Details
+          {product.name}
         </Link>
+        <div className="mt-1 flex items-center justify-between">
+          <span className="text-base font-semibold text-accent">
+            {formatPrice(product.price)}
+          </span>
+          <button
+            type="button"
+            onClick={() => dispatch(toggleCompare(product))}
+            aria-pressed={isComparing}
+            aria-label={isComparing ? 'Remove from compare' : 'Add to compare'}
+            className={`inline-flex h-7 w-7 items-center justify-center rounded-full border transition-colors
+              ${isComparing ? 'border-accent text-accent' : 'border-neutral-200 text-neutral-600 hover:border-accent hover:text-accent'}`}
+          >
+            <Scale size={14} />
+          </button>
+        </div>
       </div>
     </div>
   );
 }
-
-export default ProductCard;

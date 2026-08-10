@@ -1,31 +1,33 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchProducts } from '../redux/slices/productSlice';
-import { fetchCategories } from '../redux/slices/categorySlice';
 import Hero from '../components/Hero';
 import Categories from '../components/Categories';
 import FeaturedProducts from '../components/FeaturedProducts';
+import { fetchProducts } from '../redux/slices/productSlice';
+import { fetchCategories } from '../redux/slices/categorySlice';
 
-function Home() {
+export default function Home() {
   const dispatch = useDispatch();
-
-  const { items: products, loading: productsLoading } = useSelector((state) => state.products);
-  const { items: categories, loading: categoriesLoading } = useSelector((state) => state.categories);
+  const { items: products, loading: productsLoading } = useSelector(
+    (state) => state.products
+  );
+  const { items: categories, loading: categoriesLoading } = useSelector(
+    (state) => state.categories
+  );
 
   useEffect(() => {
     dispatch(fetchProducts({ sort: '-createdAt' }));
     dispatch(fetchCategories());
   }, [dispatch]);
 
-  const featuredProducts = products.slice(0, 4);
+  const featured = products.slice(0, 4);
+  const heroProduct = products.find((p) => p.images?.length) || products[0];
 
   return (
-    <div style={{ color: 'white', padding: '2rem' }}>
-      <Hero />
+    <div className="flex flex-col gap-14 py-8 sm:py-12">
+      <Hero heroProduct={heroProduct} />
       <Categories categories={categories} loading={categoriesLoading} />
-      <FeaturedProducts products={featuredProducts} loading={productsLoading} />
+      <FeaturedProducts products={featured} loading={productsLoading} />
     </div>
   );
 }
-
-export default Home;

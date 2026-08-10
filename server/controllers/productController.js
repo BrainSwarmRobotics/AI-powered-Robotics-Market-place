@@ -34,18 +34,19 @@ const createProduct = async (req, res) => {
 const getProducts = async (req, res) => {
   try {
 
-    // Search
-    const keyword = req.query.keyword
+    // Search — matches Catalogue.jsx's ?search= param (was reading req.query.keyword, which
+    // the frontend never sends, so search silently did nothing).
+    const search = req.query.search
       ? {
           name: {
-            $regex: req.query.keyword,
+            $regex: req.query.search,
             $options: "i",
           },
         }
       : {};
 
     // Filter
-    const filter = { ...keyword };
+    const filter = { ...search };
 
     if (req.query.category) {
       filter.category = req.query.category;
@@ -55,8 +56,12 @@ const getProducts = async (req, res) => {
       filter.stock = { $gte: Number(req.query.stock) };
     }
 
-    if (req.query.maxPrice) {
-      filter.price = { $lte: Number(req.query.maxPrice) };
+    // Price range — combine minPrice/maxPrice into one $gte/$lte object instead of
+    // two separate assignments, which would otherwise overwrite each other.
+    if (req.query.minPrice || req.query.maxPrice) {
+      filter.price = {};
+      if (req.query.minPrice) filter.price.$gte = Number(req.query.minPrice);
+      if (req.query.maxPrice) filter.price.$lte = Number(req.query.maxPrice);
     }
 
     // Pagination

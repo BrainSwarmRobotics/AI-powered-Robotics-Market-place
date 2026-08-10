@@ -1,113 +1,115 @@
-import { useEffect, useState, useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchProducts } from "../redux/slices/productSlice";
-import { clearLimitMessage } from "../redux/slices/compareSlice";
-import ProductCard from "../components/ProductCard";
-import SearchBar from "../components/SearchBar";
-import FilterPanel from "../components/FilterPanel";
+import { useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import SearchBar from '../components/SearchBar';
+import FilterPanel from '../components/FilterPanel';
+import Pagination from '../components/Pagination';
+import ProductCard from '../components/ProductCard';
+import Select from '../components/ui/Select';
+import { fetchProducts } from '../redux/slices/productSlice';
 
-function Catalogue() {
+const SORT_OPTIONS = [
+  { value: '-createdAt', label: 'Newest' },
+  { value: 'price', label: 'Price: Low to High' },
+  { value: '-price', label: 'Price: High to Low' },
+  { value: 'name', label: 'Name: A–Z' },
+];
+
+export default function Catalogue() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const dispatch = useDispatch();
-  const { items, loading, error, currentPage, totalPages } = useSelector(
-    (state) => state.products
+
+  const {
+    items: products,
+    totalPages,
+    currentPage,
+    loading,
+  } = useSelector((state) => state.products);
+  const { items: categories } = useSelector((state) => state.categories);
+
+  const search = searchParams.get('search') || '';
+  const category = searchParams.get('category') || '';
+  const minPrice = searchParams.get('minPrice') || '';
+  const maxPrice = searchParams.get('maxPrice') || '';
+  const sort = searchParams.get('sort') || '-createdAt';
+  const page = Number(searchParams.get('page') || 1);
+
+  const queryParams = useMemo(
+    () => ({
+      search: search || undefined,
+      category: category || undefined,
+      minPrice: minPrice || undefined,
+      maxPrice: maxPrice || undefined,
+      sort,
+      page,
+    }),
+    [search, category, minPrice, maxPrice, sort, page]
   );
 
-  const limitMessage = useSelector((state) => state.compare.limitMessage);
-
-  const [page, setPage] = useState(1);
-  const [queryParams, setQueryParams] = useState({
-    keyword: undefined,
-    category: undefined,
-    maxPrice: undefined,
-    stock: undefined,
-    sort: "-createdAt",
-  });
-
   useEffect(() => {
-    dispatch(fetchProducts({ ...queryParams, page }));
-  }, [dispatch, queryParams, page]);
+    dispatch(fetchProducts(queryParams));
+  }, [dispatch, queryParams]);
 
-  // Auto-hide the compare limit warning after 3 seconds
-  useEffect(() => {
-    if (limitMessage) {
-      const timer = setTimeout(() => {
-        dispatch(clearLimitMessage());
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [limitMessage, dispatch]);
-
-  const handleSearch = useCallback((keyword) => {
-    setQueryParams((prev) => ({ ...prev, keyword: keyword || undefined }));
-    setPage(1);
-  }, []);
-
-  const handleFilterChange = useCallback((changedFields) => {
-    setQueryParams((prev) => ({ ...prev, ...changedFields }));
-    setPage(1);
-  }, []);
+  function updateParams(updates) {
+    const next = new URLSearchParams(searchParams);
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value) next.set(key, value);
+      else next.delete(key);
+    });
+    // Any filter/search/sort change resets pagination, unless page itself changed.
+    if (!('page' in updates)) next.delete('page');
+    setSearchParams(next);
+  }
 
   return (
-    <div className="catalogue-container">
-      <h1>Product Catalogue</h1>
-      <SearchBar onSearch={handleSearch} />
+    <div className="py-8 sm:py-10">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-2xl font-semibold text-ink">All Products</h1>
+        <SearchBar value={search} onSearch={(val) => updateParams({ search: val })} />
+      </div>
 
-      {limitMessage && (
-        <div
-          style={{
-            background: "#e11d48",
-            color: "white",
-            padding: "12px 20px",
-            borderRadius: "8px",
-            margin: "1rem 0",
-            textAlign: "center",
-            fontWeight: "bold",
-          }}
-        >
-          {limitMessage}
+      <div className="mb-6 flex flex-wrap items-center gap-3">
+        <FilterPanel
+          categories={categories}
+          filters={{ category, minPrice, maxPrice }}
+          onApply={(f) => updateParams(f)}
+        />
+        <Select
+          aria-label="Sort by"
+          value={sort}
+          onChange={(e) => updateParams({ sort: e.target.value })}
+          options={SORT_OPTIONS}
+          className="w-48"
+        />
+      </div>
+
+      {loading ? (
+        <div className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="aspect-[3/4] animate-pulse rounded-[var(--radius-panel)] bg-neutral-100" />
+          ))}
+        </div>
+      ) : products.length === 0 ? (
+        <div className="py-16 text-center">
+          <p className="text-sm text-neutral-600">No products match your filters.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
+          {products.map((product) => (
+            <ProductCard key={product._id} product={product} />
+          ))}
         </div>
       )}
 
-      <div className="catalogue-layout">
-        <FilterPanel filters={queryParams} onFilterChange={handleFilterChange} />
-
-        <div className="catalogue-main">
-          {loading ? (
-            <h2>Loading Products...</h2>
-          ) : error ? (
-            <h2>{error}</h2>
-          ) : (
-            <>
-              <div className="product-grid">
-                {items.length > 0 ? (
-                  items.map((product) => (
-                    <ProductCard key={product._id} product={product} />
-                  ))
-                ) : (
-                  <h2>No products found.</h2>
-                )}
-              </div>
-
-              <div className="pagination">
-                <button onClick={() => setPage(page - 1)} disabled={page === 1}>
-                  Previous
-                </button>
-                <span>
-                  Page {currentPage} of {totalPages}
-                </span>
-                <button
-                  onClick={() => setPage(page + 1)}
-                  disabled={page >= totalPages}
-                >
-                  Next
-                </button>
-              </div>
-            </>
-          )}
+      {!loading && totalPages > 1 && (
+        <div className="mt-8">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(p) => updateParams({ page: String(p) })}
+          />
         </div>
-      </div>
+      )}
     </div>
   );
 }
-
-export default Catalogue;
