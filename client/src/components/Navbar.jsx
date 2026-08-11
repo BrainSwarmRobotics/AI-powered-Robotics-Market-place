@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { Menu, X, Search, ShoppingCart, Heart, User } from 'lucide-react';
+import { Menu, X, Search, ShoppingCart, Heart, User, Scale } from 'lucide-react';
 import logo from '../assets/BSR_Logo.png';
 
 export default function Navbar({ categories = [] }) {
@@ -13,6 +13,7 @@ export default function Navbar({ categories = [] }) {
     state.cart.items.reduce((sum, item) => sum + item.qty, 0)
   );
   const wishlistCount = useSelector((state) => state.wishlist.items.length);
+  const compareCount = useSelector((state) => state.compare.items.length);
 
   function handleSearchSubmit(e) {
     e.preventDefault();
@@ -46,6 +47,18 @@ export default function Navbar({ categories = [] }) {
         </form>
 
         <div className="ml-auto flex items-center gap-1 sm:gap-2">
+          <Link
+            to="/compare"
+            aria-label={`Compare (${compareCount} items)`}
+            className="relative inline-flex h-10 w-10 items-center justify-center rounded-[var(--radius-control)] hover:bg-neutral-100"
+          >
+            <Scale size={20} />
+            {compareCount > 0 && (
+              <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-semibold text-white">
+                {compareCount}
+              </span>
+            )}
+          </Link>
           <Link
             to="/wishlist"
             aria-label={`Wishlist (${wishlistCount} items)`}
@@ -143,6 +156,9 @@ export default function Navbar({ categories = [] }) {
                 {cat.name}
               </Link>
             ))}
+            <Link to="/compare" onClick={() => setMobileOpen(false)} className="text-sm font-medium text-neutral-600">
+              Compare ({compareCount})
+            </Link>
             <Link to="/account" onClick={() => setMobileOpen(false)} className="text-sm font-medium text-neutral-600">
               Account
             </Link>

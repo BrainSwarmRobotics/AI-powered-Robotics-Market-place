@@ -2,10 +2,19 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const MAX_COMPARE = 3;
 
+const loadCompare = () => {
+  try {
+    const data = localStorage.getItem('compare');
+    return data ? JSON.parse(data) : [];
+  } catch (err) {
+    return [];
+  }
+};
+
 const compareSlice = createSlice({
   name: 'compare',
   initialState: {
-    items: [],
+    items: loadCompare(),
     limitMessage: '',
   },
   reducers: {
@@ -14,6 +23,7 @@ const compareSlice = createSlice({
       if (exists) {
         state.items = state.items.filter((p) => p._id !== action.payload._id);
         state.limitMessage = '';
+        localStorage.setItem('compare', JSON.stringify(state.items));
         return;
       }
       if (state.items.length >= MAX_COMPARE) {
@@ -22,10 +32,12 @@ const compareSlice = createSlice({
       }
       state.items.push(action.payload);
       state.limitMessage = '';
+      localStorage.setItem('compare', JSON.stringify(state.items));
     },
     clearCompare: (state) => {
       state.items = [];
       state.limitMessage = '';
+      localStorage.setItem('compare', JSON.stringify(state.items));
     },
     clearLimitMessage: (state) => {
       state.limitMessage = '';
