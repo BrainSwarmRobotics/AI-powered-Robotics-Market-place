@@ -21,6 +21,29 @@ const fs = require('fs');
 const path = require('path');
 const connectDB = require('../config/db');
 const Product = require('../models/Product');
+const Category = require('../models/Category');
+
+const CATEGORY_DESCRIPTIONS = {
+  Robot: 'Fully assembled robots for education, research, and hands-on development.',
+  Kit: 'Build-it-yourself robotics kits and chassis platforms.',
+  Arm: 'Robotic arms for industrial and research applications.',
+};
+
+async function ensureCategories(mappedProducts) {
+  const names = [...new Set(mappedProducts.map((p) => p.category).filter(Boolean))];
+  for (const name of names) {
+    await Category.findOneAndUpdate(
+      { name },
+      {
+        name,
+        description:
+          CATEGORY_DESCRIPTIONS[name] || `${name} products from Brainswarm Robotics.`,
+      },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+  }
+  console.log(`Ensured ${names.length} categor${names.length === 1 ? 'y' : 'ies'}: ${names.join(', ')}`);
+}
 
 const RAW_PATH = path.join(__dirname, 'robots.json');
 
@@ -135,6 +158,7 @@ async function seed() {
   await connectDB();
   await Product.deleteMany({});
   await Product.insertMany(mapped);
+  await ensureCategories(mapped);
 
   console.log(`Seeded ${mapped.length} products. Sample:`);
   console.log(await Product.findOne().lean());

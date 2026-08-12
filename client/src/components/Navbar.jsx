@@ -22,6 +22,7 @@ export default function Navbar({ categories = [] }) {
   );
   const wishlistCount = useSelector((state) => state.wishlist.items.length);
   const compareCount = useSelector((state) => state.compare.items.length);
+  const user = useSelector((state) => state.auth.user);
 
   function handleSearchSubmit(e) {
     e.preventDefault();
@@ -92,11 +93,11 @@ export default function Navbar({ categories = [] }) {
             )}
           </Link>
           <Link
-            to="/account"
-            aria-label="Account"
+            to={user ? '/account' : '/login'}
+            aria-label={user ? `Account (${user.name})` : 'Log in'}
             className="hidden h-10 w-10 items-center justify-center rounded-[var(--radius-control)] hover:bg-neutral-100 sm:inline-flex"
           >
-            <User size={20} />
+            <User size={20} className={user ? 'text-accent' : undefined} />
           </Link>
           <button
             type="button"

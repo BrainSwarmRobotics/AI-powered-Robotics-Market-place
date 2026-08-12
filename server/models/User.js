@@ -36,17 +36,20 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-// Encrypt password using bcrypt before saving to database
-userSchema.pre('save', async function (next) {
-  // FIX: must `return` here, otherwise execution falls through and
+// Encrypt password using bcrypt before saving to database.
+// NOTE: Mongoose 9's pre('save') hooks no longer pass a `next` callback to
+// async functions — the hook is awaited directly, and calling a `next` that
+// was never actually passed in throws "next is not a function". Async hooks
+// in this version just return normally (or throw, to fail the save).
+userSchema.pre('save', async function () {
+  // Still must `return` here — otherwise execution falls through and
   // re-hashes an already-hashed password on every save (e.g. profile updates),
   // which silently breaks login for that user.
   if (!this.isModified('password')) {
-    return next();
+    return;
   }
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
-  next();
 });
 
 // Match user entered password to hashed password in database
