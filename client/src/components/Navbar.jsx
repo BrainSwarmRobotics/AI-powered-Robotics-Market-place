@@ -4,6 +4,14 @@ import { useSelector } from 'react-redux';
 import { Menu, X, Search, ShoppingCart, Heart, User, Scale } from 'lucide-react';
 import logo from '../assets/BSR_Logo.png';
 
+const PAGE_LINKS = [
+  { label: 'All Products', to: '/products' },
+  { label: 'Compare', to: '/compare' },
+  { label: 'Wishlist', to: '/wishlist' },
+  { label: 'About', to: '/about' },
+  { label: 'Contact', to: '/contact' },
+];
+
 export default function Navbar({ categories = [] }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -26,9 +34,9 @@ export default function Navbar({ categories = [] }) {
   return (
     <header className="sticky top-0 z-30 border-b border-neutral-200 bg-surface/95 backdrop-blur">
       {/* Top row: logo, search, icons */}
-      <div className="mx-auto flex h-20 max-w-[1280px] items-center gap-4 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-24 max-w-[1280px] items-center gap-4 px-4 sm:px-6 lg:px-8">
         <Link to="/" className="flex shrink-0 items-center" aria-label="Brainswarm Robotics home">
-          <img src={logo} alt="Brainswarm Robotics" className="h-12 w-auto sm:h-14" />
+          <img src={logo} alt="Brainswarm Robotics" className="h-16 w-auto sm:h-20" />
         </Link>
 
         <form onSubmit={handleSearchSubmit} className="hidden flex-1 md:flex">
@@ -101,19 +109,25 @@ export default function Navbar({ categories = [] }) {
         </div>
       </div>
 
-      {/* Category tabs — horizontal row, not a sidebar (§1.7) */}
+      {/* Page links + category tabs — horizontal row, not a sidebar (§1.7) */}
       <nav className="hidden border-t border-neutral-200 md:block">
         <div className="mx-auto flex max-w-[1280px] items-center gap-6 overflow-x-auto px-4 py-2.5 sm:px-6 lg:px-8">
-          <NavLink
-            to="/products"
-            className={({ isActive }) =>
-              `whitespace-nowrap text-sm font-medium transition-colors ${
-                isActive ? 'text-accent' : 'text-neutral-600 hover:text-ink'
-              }`
-            }
-          >
-            All Products
-          </NavLink>
+          {PAGE_LINKS.map((link) => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              className={({ isActive }) =>
+                `whitespace-nowrap text-sm font-medium transition-colors ${
+                  isActive ? 'text-accent' : 'text-neutral-600 hover:text-ink'
+                }`
+              }
+            >
+              {link.label}
+            </NavLink>
+          ))}
+          {categories.length > 0 && (
+            <span className="h-4 w-px shrink-0 bg-neutral-200" aria-hidden="true" />
+          )}
           {categories.map((cat) => (
             <NavLink
               key={cat._id}
@@ -143,9 +157,16 @@ export default function Navbar({ categories = [] }) {
             </div>
           </form>
           <div className="flex flex-col gap-3">
-            <Link to="/products" onClick={() => setMobileOpen(false)} className="text-sm font-medium text-ink">
-              All Products
-            </Link>
+            {PAGE_LINKS.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                onClick={() => setMobileOpen(false)}
+                className="text-sm font-medium text-ink"
+              >
+                {link.label}
+              </Link>
+            ))}
             {categories.map((cat) => (
               <Link
                 key={cat._id}
@@ -156,9 +177,6 @@ export default function Navbar({ categories = [] }) {
                 {cat.name}
               </Link>
             ))}
-            <Link to="/compare" onClick={() => setMobileOpen(false)} className="text-sm font-medium text-neutral-600">
-              Compare ({compareCount})
-            </Link>
             <Link to="/account" onClick={() => setMobileOpen(false)} className="text-sm font-medium text-neutral-600">
               Account
             </Link>

@@ -15,7 +15,13 @@ export default function FilterPanel({ categories = [], filters, onApply }) {
     Boolean
   ).length;
 
+  const priceInvalid =
+    draft.minPrice !== '' &&
+    draft.maxPrice !== '' &&
+    Number(draft.minPrice) > Number(draft.maxPrice);
+
   function handleApply(close) {
+    if (priceInvalid) return;
     onApply(draft);
     close();
   }
@@ -81,13 +87,23 @@ export default function FilterPanel({ categories = [], filters, onApply }) {
                 className="w-full"
               />
             </div>
+            {priceInvalid && (
+              <p className="mt-1.5 text-xs text-danger">
+                Min price can&apos;t be greater than max price.
+              </p>
+            )}
           </div>
 
           <div className="flex justify-between gap-2 border-t border-neutral-200 pt-3">
             <Button variant="ghost" size="sm" onClick={() => handleClear(close)}>
               Clear
             </Button>
-            <Button variant="primary" size="sm" onClick={() => handleApply(close)}>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => handleApply(close)}
+              disabled={priceInvalid}
+            >
               Apply
             </Button>
           </div>
