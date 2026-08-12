@@ -20,10 +20,7 @@ export default function Wishlist() {
   const items = useSelector((state) => state.wishlist.items);
 
   const handleMoveToCart = (product) => {
-    // Uses the current client-only cartSlice reducer. Once B1 lands and
-    // cartSlice moves to async thunks, swap this for:
-    // dispatch(addToCart({ productId: product._id, qty: 1 }))
-    dispatch(addToCart(product));
+    dispatch(addToCart({ productId: product._id, qty: 1 }));
     dispatch(removeFromWishlist(product._id));
   };
 

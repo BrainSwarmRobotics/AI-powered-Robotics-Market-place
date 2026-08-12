@@ -12,7 +12,7 @@ const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
-
+const cartRoutes = require('./routes/cartRoutes');
 
 // Debug line to see if Node is actually reading the URI 
 console.log("Checking loaded URI:", process.env.MONGODB_URI ? "Found! " : "NOT FOUND (Undefined) ");
@@ -35,6 +35,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 // Use the category routes
 app.use('/api/categories', categoryRoutes);
+// Use the cart routes
+app.use('/api/cart', cartRoutes);
 
 // listen to port
 const PORT = process.env.PORT || 5000;

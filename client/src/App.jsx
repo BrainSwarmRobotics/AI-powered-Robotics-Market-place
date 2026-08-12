@@ -5,6 +5,7 @@ import Catalogue from './pages/Catalogue';
 import ProductDetail from './pages/ProductDetail';
 import Wishlist from './pages/Wishlist';
 import Compare from './pages/Compare';
+import Cart from './pages/Cart';
 
 function ComingSoon({ title }) {
   return (
@@ -24,7 +25,7 @@ function App() {
         <Route path="/products/:id" element={<ProductDetail />} />
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/compare" element={<Compare />} />
-        <Route path="/cart" element={<ComingSoon title="Cart" />} />
+        <Route path="/cart" element={<Cart />} />
         <Route path="/account" element={<ComingSoon title="Account" />} />
         <Route path="/about" element={<ComingSoon title="About Brainswarm" />} />
         <Route path="/contact" element={<ComingSoon title="Contact" />} />
