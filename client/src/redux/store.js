@@ -5,6 +5,7 @@ import wishlistReducer from './slices/wishlistSlice';
 import compareReducer from './slices/compareSlice';
 import cartReducer from './slices/cartSlice';
 import authReducer from './slices/authSlice';
+import orderReducer from './slices/orderSlice';
 
 
 export const store = configureStore({
@@ -15,6 +16,7 @@ export const store = configureStore({
     compare: compareReducer,
     cart: cartReducer,
     auth: authReducer,
+    orders: orderReducer,
   },
 });
 

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Trash2, BookmarkPlus, RotateCcw } from 'lucide-react';
 import {
   fetchCart,
@@ -22,6 +22,7 @@ function formatPrice(price) {
 
 export default function Cart() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { items, loading } = useSelector((state) => state.cart);
 
   useEffect(() => {
@@ -32,7 +33,7 @@ export default function Cart() {
   const savedItems = items.filter((i) => i.savedForLater);
 
   const subtotal = activeItems.reduce((sum, i) => sum + i.price * i.qty, 0);
-  const shipping = subtotal > 0 ? 500 : 0; // placeholder flat rate until B2
+  const shipping = subtotal > 0 ? 500 : 0; // placeholder flat rate, matches Checkout.jsx and the server's totals
   const total = subtotal + shipping;
 
   if (loading && items.length === 0) {
@@ -187,12 +188,13 @@ export default function Cart() {
             <span>Total</span>
             <span>{formatPrice(total)}</span>
           </div>
-          <Button className="mt-6 w-full" disabled={activeItems.length === 0}>
+          <Button
+            className="mt-6 w-full"
+            disabled={activeItems.length === 0}
+            onClick={() => navigate('/checkout')}
+          >
             Proceed to Checkout
           </Button>
-          <p className="mt-2 text-center text-xs text-neutral-500">
-            Checkout wiring lands in B2
-          </p>
         </div>
       </div>
     </div>
