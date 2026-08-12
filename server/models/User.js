@@ -30,6 +30,14 @@ const userSchema = new mongoose.Schema({
     enum: ['customer', 'admin', 'superadmin'],
     default: 'customer',
   },
+  address: {
+    street: { type: String, trim: true, default: '' },
+    city: { type: String, trim: true, default: '' },
+    state: { type: String, trim: true, default: '' },
+    postalCode: { type: String, trim: true, default: '' },
+    country: { type: String, trim: true, default: '' },
+    phone: { type: String, trim: true, default: '' },
+  },
   createdAt: {
     type: Date,
     default: Date.now,

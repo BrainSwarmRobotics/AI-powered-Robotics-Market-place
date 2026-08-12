@@ -80,6 +80,54 @@ exports.loginUser = async (req, res) => {
   }
 };
 
+// @desc    Get the logged-in user's own profile (includes address)
+// @route   GET /api/auth/profile
+// NOTE: mount behind `protect` in authRoutes.js
+exports.getProfile = async (req, res) => {
+  try {
+    // req.user is already the full Mongoose doc, set by `protect` middleware
+    res.json({
+      success: true,
+      _id: req.user.id,
+      name: req.user.name,
+      email: req.user.email,
+      role: req.user.role,
+      address: req.user.address,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Update the logged-in user's own name/address (not email/password/role)
+// @route   PUT /api/auth/profile
+// NOTE: mount behind `protect` in authRoutes.js
+exports.updateProfile = async (req, res) => {
+  try {
+    const { name, address } = req.body;
+
+    if (name !== undefined) req.user.name = name;
+    if (address !== undefined) {
+      // Merge rather than replace, so a partial address object from the
+      // client doesn't wipe out fields it didn't send.
+      req.user.address = { ...(req.user.address?.toObject?.() ?? req.user.address), ...address };
+    }
+
+    await req.user.save();
+
+    res.json({
+      success: true,
+      _id: req.user.id,
+      name: req.user.name,
+      email: req.user.email,
+      role: req.user.role,
+      address: req.user.address,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // @desc    Create a staff account (admin/superadmin) — protected, superadmin only
 // @route   POST /api/auth/create-staff
 // NOTE: mount this behind `protect` + `restrictTo('superadmin')` in authRoutes.js
