@@ -80,7 +80,7 @@ export default function ProductDetail() {
     <div className="mx-auto max-w-6xl px-4 py-8">
       <Link
         to="/products"
-        className="inline-flex items-center gap-1 text-sm font-medium text-neutral-600 hover:text-accent"
+        className="inline-flex items-center gap-1 text-sm font-medium text-neutral-600 hover:text-accent-blue"
       >
         <ChevronLeft size={16} />
         Back to Catalogue
@@ -88,7 +88,7 @@ export default function ProductDetail() {
 
       <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-2">
         <div>
-          <div className="aspect-square w-full overflow-hidden rounded-[var(--radius-panel)] bg-surface-alt">
+          <div className="aspect-square w-full overflow-hidden rounded-[var(--radius-panel)] border border-neutral-200 bg-surface-alt">
             {hasImages ? (
               <img
                 src={images[activeImage].url}
@@ -107,7 +107,7 @@ export default function ProductDetail() {
                   key={img.public_id || i}
                   onClick={() => setActiveImage(i)}
                   className={`h-16 w-16 overflow-hidden rounded-[var(--radius-control)] border-2 transition-colors
-                    ${i === activeImage ? 'border-accent' : 'border-transparent'}`}
+                    ${i === activeImage ? 'border-accent-blue' : 'border-transparent'}`}
                 >
                   <img src={img.url} alt="" className="h-full w-full object-cover" />
                 </button>
@@ -118,11 +118,11 @@ export default function ProductDetail() {
 
         <div>
           {product.category && (
-            <span className="text-xs font-medium uppercase tracking-wide text-neutral-600">
+            <Badge tone="accent" className="uppercase tracking-wide">
               {product.category}
-            </span>
+            </Badge>
           )}
-          <h1 className="mt-1 text-2xl font-semibold text-ink">{product.name}</h1>
+          <h1 className="mt-2 text-2xl font-semibold text-ink">{product.name}</h1>
 
           <div className="mt-3 flex items-center gap-3">
             <span className="text-2xl font-semibold text-accent">
@@ -150,8 +150,8 @@ export default function ProductDetail() {
             <p className="mt-5 text-sm leading-relaxed text-neutral-600">{product.description}</p>
           )}
 
-          <Card className="mt-6">
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-neutral-600">
+          <Card className="mt-6 border-t-4 border-t-accent-blue">
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-accent-blue">
               Specifications
             </h2>
             <table className="w-full border-collapse text-sm">
@@ -172,14 +172,14 @@ export default function ProductDetail() {
           </Card>
 
           {product.educationalApplications && (
-            <Card className="mt-4">
+            <Card className="mt-4 border-l-4 border-l-accent-teal">
               <h3 className="mb-1 text-sm font-semibold text-ink">Educational Applications</h3>
               <p className="text-sm text-neutral-600">{product.educationalApplications}</p>
             </Card>
           )}
 
           {product.researchApplications && (
-            <Card className="mt-4">
+            <Card className="mt-4 border-l-4 border-l-accent-teal">
               <h3 className="mb-1 text-sm font-semibold text-ink">Research Applications</h3>
               <p className="text-sm text-neutral-600">{product.researchApplications}</p>
             </Card>
@@ -188,7 +188,7 @@ export default function ProductDetail() {
       </div>
 
       <Card className="mt-12">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-600">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-accent-blue">
           Reviews
         </h2>
         <p className="mt-2 text-sm text-neutral-500">
@@ -197,7 +197,7 @@ export default function ProductDetail() {
       </Card>
 
       <Card className="mt-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-600">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-accent-blue">
           Similar Products
         </h2>
         <p className="mt-2 text-sm text-neutral-500">
