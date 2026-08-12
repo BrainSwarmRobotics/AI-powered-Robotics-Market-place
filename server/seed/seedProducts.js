@@ -1,6 +1,21 @@
-const dns = require('dns');
-dns.setServers(['8.8.8.8', '1.1.1.1']);
+/**
+ * A0 — Data integrity pass
+ *
+ * Fixes the mismatch flagged in the project brief §1.4: robots.json uses
+ * Title Case keys and human-readable strings ("220K", "-"), while
+ * Product.js expects camelCase keys and typed values (Number price,
+ * Number stock, null for "no data").
+ *
+ * Run with: npm run seed   (see package.json "scripts.seed" below)
+ */
+
 require('dotenv').config();
+const dns = require('dns');
+// Windows + Node's c-ares resolver sometimes fails mongodb+srv:// DNS SRV
+// lookups even when the OS resolver (nslookup) succeeds — forcing public
+// DNS servers here works around it. See HANDOFF notes for details.
+dns.setServers(['8.8.8.8', '1.1.1.1']);
+
 const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
@@ -50,20 +65,33 @@ function parsePrice(raw) {
   return Math.round(value);
 }
 
-/* Stock arrives as either a Number or a numeric string. */
+/** Stock arrives as either a Number or a numeric string. */
 function parseStock(raw) {
   if (raw === undefined || raw === null || raw === '-') return 0;
   const n = Number(raw);
   return Number.isFinite(n) ? n : 0;
 }
 
-/* Documentation must land as exactly "Yes" or "No" to satisfy the schema enum. */
+/** Documentation must land as exactly "Yes" or "No" to satisfy the schema enum. */
 function parseDocumentation(raw) {
   const v = String(raw || '').trim().toLowerCase();
   return v === 'yes' ? 'Yes' : 'No';
 }
 
+const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME;
+
+/** Builds the same { url, public_id } shape the Multer/Cloudinary upload flow produces. */
+function buildImage(publicId) {
+  if (!publicId) return null;
+  return {
+    url: `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/${publicId}.png`,
+    public_id: publicId,
+  };
+}
+
 function mapRawToSchema(raw) {
+  const image = buildImage(raw['Image Public ID']);
+
   return {
     name: raw['Product Name']?.trim(),
     manufacturer: emptyToNull(raw['Manufacturer']),
@@ -81,7 +109,7 @@ function mapRawToSchema(raw) {
     educationalApplications: emptyToNull(raw['Educational Applications']),
     researchApplications: emptyToNull(raw['Research Applications']),
     documentation: parseDocumentation(raw['Documentation']),
-    images: [], // Cloudinary URLs attached separately per §1.5 — most products start empty
+    images: image ? [image] : [], // Cloudinary image linked via "Image Public ID" in robots.json; empty until linked
   };
 }
 
@@ -118,71 +146,3 @@ seed().catch((err) => {
   console.error('Seed failed:', err);
   process.exit(1);
 });
-
-
-// const dns = require("dns");
-// dns.setServers(["8.8.8.8", "8.8.4.4"]);
-
-// const mongoose = require("mongoose");
-// const dotenv = require("dotenv");
-// const Product = require("../models/Product");
-// const robotsData = require("./robots.json");
-
-// dotenv.config();
-
-// // Helper: convert "220K" -> 220000, "1.5M" -> 1500000, plain numbers stay as-is
-// const parsePrice = (priceStr) => {
-//   if (typeof priceStr === "number") return priceStr;
-
-//   const str = String(priceStr).trim().toUpperCase();
-//   const num = parseFloat(str);
-
-//   if (str.endsWith("K")) return num * 1000;
-//   if (str.endsWith("M")) return num * 1000000;
-
-//   return num; // fallback if it's already a plain number string
-// };
-
-// // Helper: map one raw robots.json entry to your Mongoose schema shape
-// const mapToSchema = (item) => ({
-//   name: item["Product Name"],
-//   manufacturer: item["Manufacturer"],
-//   category: item["Category"],
-//   description: item["Description"],
-//   processor: item["Processor"],
-//   sensors: item["Sensors"],
-//   battery: item["Battery"],
-//   maxSpeed: item["Maximum Speed"],
-//   warranty: item["Warranty"],
-//   stock: Number(item["Stock Availability"]) || 0,
-//   communicationProtocols: item["Communication Protocols"],
-//   price: parsePrice(item["Price"]),
-//   utility: item["Utility"],
-//   educationalApplications: item["Educational Applications"],
-//   researchApplications: item["Research Applications"],
-//   documentation: item["Documentation"],
-//   images: [], // no real images yet — added later via actual upload
-// });
-
-// const seedProducts = async () => {
-//   try {
-//     await mongoose.connect(process.env.MONGODB_URI);
-//     console.log("MongoDB connected for seeding...");
-
-//     // Clear existing products (careful — this wipes the Product collection)
-//     await Product.deleteMany({});
-//     console.log("Existing products cleared.");
-
-//     const mappedProducts = robotsData.map(mapToSchema);
-
-//     await Product.insertMany(mappedProducts);
-//     console.log(`${mappedProducts.length} products seeded successfully.`);
-
-//     process.exit(0);
-//   } catch (error) {
-//     console.error("Seeding error:", error.message);
-//     process.exit(1);
-//   }
-// };
-
-// seedProducts();
