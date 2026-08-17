@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, Download } from 'lucide-react';
+import API from '../api/axios';
 
 function formatPrice(price) {
   return new Intl.NumberFormat('en-PK', {
@@ -13,6 +15,30 @@ function formatPrice(price) {
 export default function OrderConfirmation() {
   const { id } = useParams();
   const order = useSelector((state) => state.orders.lastOrder);
+  const [downloading, setDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState(null);
+
+  async function handleDownloadInvoice() {
+    setDownloading(true);
+    setDownloadError(null);
+    try {
+      const response = await API.get(`/orders/${order._id}/invoice`, {
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `invoice-${order._id}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      setDownloadError('Could not download invoice. Please try again.');
+    } finally {
+      setDownloading(false);
+    }
+  }
 
   // lastOrder only exists right after Checkout.jsx's createOrder succeeds —
   // a direct refresh/typed URL loses it. Real order lookup by ID (GET
@@ -55,9 +81,21 @@ export default function OrderConfirmation() {
         </div>
       </div>
 
-      <Link to="/products" className="mt-6 inline-block text-sm font-medium text-accent hover:underline">
-        Continue shopping →
-      </Link>
+      <button
+        onClick={handleDownloadInvoice}
+        disabled={downloading}
+        className="mt-6 inline-flex items-center gap-2 rounded-[var(--radius-panel)] border border-neutral-200 px-4 py-2 text-sm font-medium text-ink hover:bg-surface-alt disabled:opacity-50"
+      >
+        <Download size={16} />
+        {downloading ? 'Preparing invoice...' : 'Download Invoice (PDF)'}
+      </button>
+      {downloadError && <p className="mt-2 text-sm text-danger">{downloadError}</p>}
+
+      <div>
+        <Link to="/products" className="mt-6 inline-block text-sm font-medium text-accent hover:underline">
+          Continue shopping →
+        </Link>
+      </div>
     </div>
   );
 }

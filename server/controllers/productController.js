@@ -1,10 +1,9 @@
 const Product = require("../models/Product");
-const cloudinary = require("../config/cloudinary"); // added this import at the top (needed later for delete)
+const cloudinary = require("../config/cloudinary");
 
 // Create Product
 const createProduct = async (req, res) => {
   try {
-    // Map uploaded files into the format your schema expects
     const imageData = req.files
       ? req.files.map((file) => ({
           url: file.path,
@@ -13,8 +12,8 @@ const createProduct = async (req, res) => {
       : [];
 
     const product = await Product.create({
-      ...req.body,       // name, manufacturer, category, modelNumber, description, price, stock
-      images: imageData, //  added the images array
+      ...req.body,
+      images: imageData,
     });
 
     res.status(201).json({
@@ -33,9 +32,6 @@ const createProduct = async (req, res) => {
 // Get All Products
 const getProducts = async (req, res) => {
   try {
-
-    // Search — matches Catalogue.jsx's ?search= param (was reading req.query.keyword, which
-    // the frontend never sends, so search silently did nothing).
     const search = req.query.search
       ? {
           name: {
@@ -45,7 +41,6 @@ const getProducts = async (req, res) => {
         }
       : {};
 
-    // Filter
     const filter = { ...search };
 
     if (req.query.category) {
@@ -56,20 +51,16 @@ const getProducts = async (req, res) => {
       filter.stock = { $gte: Number(req.query.stock) };
     }
 
-    // Price range — combine minPrice/maxPrice into one $gte/$lte object instead of
-    // two separate assignments, which would otherwise overwrite each other.
     if (req.query.minPrice || req.query.maxPrice) {
       filter.price = {};
       if (req.query.minPrice) filter.price.$gte = Number(req.query.minPrice);
       if (req.query.maxPrice) filter.price.$lte = Number(req.query.maxPrice);
     }
 
-    // Pagination
     const page = Number(req.query.page) || 1;
     const limit = 10;
     const skip = (page - 1) * limit;
 
-    // Sorting
     const sort = req.query.sort || "createdAt";
 
     const products = await Product.find(filter)
@@ -86,7 +77,6 @@ const getProducts = async (req, res) => {
       totalPages: Math.ceil(totalProducts / limit),
       products,
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -123,8 +113,8 @@ const getProductById = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
-      new: true, // return the updated document
-      runValidators: true, // apply schema validation on update
+      new: true,
+      runValidators: true,
     });
 
     if (!product) {
@@ -159,7 +149,6 @@ const deleteProduct = async (req, res) => {
       });
     }
 
-    // Delete each associated image from Cloudinary
     for (const img of product.images) {
       if (img.public_id) {
         await cloudinary.uploader.destroy(img.public_id);
@@ -179,9 +168,6 @@ const deleteProduct = async (req, res) => {
     });
   }
 };
-
-
-
 
 // Add Images to Existing Product
 const addProductImages = async (req, res) => {
@@ -232,7 +218,6 @@ const removeProductImage = async (req, res) => {
       });
     }
 
-    // Cloudinary public_id contains a "/" (e.g. products/xxxx), so it comes URL-encoded in the route param
     const decodedPublicId = decodeURIComponent(public_id);
 
     await cloudinary.uploader.destroy(decodedPublicId);
@@ -256,6 +241,35 @@ const removeProductImage = async (req, res) => {
   }
 };
 
+// Get Inventory Status — out-of-stock / low-stock overview (admin/superadmin)
+// GET /api/products/admin/inventory?threshold=5
+const LOW_STOCK_THRESHOLD = 5; // placeholder default; adjustable per-request via ?threshold=
+
+const getInventoryStatus = async (req, res) => {
+  try {
+    const threshold = Number(req.query.threshold) || LOW_STOCK_THRESHOLD;
+
+    const outOfStock = await Product.find({ stock: 0 }).sort('name');
+    const lowStock = await Product.find({
+      stock: { $gt: 0, $lte: threshold },
+    }).sort('stock');
+
+    res.status(200).json({
+      success: true,
+      threshold,
+      outOfStockCount: outOfStock.length,
+      lowStockCount: lowStock.length,
+      outOfStock,
+      lowStock,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   createProduct,
   getProducts,
@@ -264,4 +278,5 @@ module.exports = {
   deleteProduct,
   addProductImages,
   removeProductImage,
+  getInventoryStatus,
 };

@@ -33,9 +33,35 @@ const orderSchema = new mongoose.Schema(
     total: { type: Number, required: true },
     status: {
       type: String,
-      enum: ['Confirmed', 'Processing', 'Packed', 'Shipped', 'Delivered'],
+      // 'Cancelled' added in C3 — original enum had no way to represent a
+      // cancelled/refunded order, which the refund flow below needs.
+      enum: ['Confirmed', 'Processing', 'Packed', 'Shipped', 'Delivered', 'Cancelled'],
       default: 'Confirmed',
     },
+    paymentMethod: {
+      type: String,
+      enum: ['COD', 'Card'],
+      required: true,
+      default: 'COD',
+    },
+    paymentStatus: {
+      type: String,
+      // 'Refunded' added in C3.
+      enum: ['Pending', 'Paid', 'Failed', 'Refunded'],
+      default: 'Pending',
+    },
+    paymentIntentId: { type: String, default: null },
+
+    // --- C3: refund tracking ---
+    refundStatus: {
+      type: String,
+      enum: ['None', 'Requested', 'Approved', 'Rejected', 'Refunded'],
+      default: 'None',
+    },
+    refundReason: { type: String, default: '' }, // admin note, not customer-facing yet
+    refundAmount: { type: Number, default: null },
+    refundedAt: { type: Date, default: null },
+    stripeRefundId: { type: String, default: null }, // only set for Card orders refunded via Stripe
   },
   { timestamps: true }
 );
