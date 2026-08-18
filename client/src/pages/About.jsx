@@ -12,19 +12,19 @@ const WHAT_WE_BUILD = [
   {
     title: 'Custom robots',
     description:
-      'Machines built for a specific job in teaching, research, or production — mechanical design, electronics, firmware, and the software stack that sits on top, delivered as one system rather than a pile of parts to integrate.',
+      'Machines built for a specific job in teaching, research, or production. Mechanical design, electronics, firmware, and the software stack that sits on top, delivered as one system rather than a pile of parts to integrate.',
     tags: ['Mechanical design', 'Electronics & PCB', 'Firmware', 'ROS 2 integration'],
   },
   {
     title: 'Applied AI systems',
     description:
-      'Computer vision and edge intelligence that runs where the work happens rather than in a distant data centre — models tuned to the hardware on hand, wired into the workflow they need to serve.',
+      'Computer vision and edge intelligence that runs where the work happens rather than in a distant data centre. Models tuned to the hardware on hand, wired into the workflow they need to serve.',
     tags: ['Object detection', 'Pose & activity', 'Model optimisation', 'On-device inference'],
   },
   {
     title: 'Proof of concept, quickly',
     description:
-      'Turning an idea into something you can hold and test — tightly scoped, built in weeks rather than quarters, with a straight answer on whether it is worth taking further.',
+      'Turning an idea into something you can hold and test: tightly scoped, built in weeks rather than quarters, with a straight answer on whether it is worth taking further.',
     tags: ['Feasibility study', 'Working prototype', 'Field pilot', 'Handover & training'],
   },
 ];
@@ -45,7 +45,7 @@ export default function About() {
         Robotics and AI, built for the classroom, the lab, and the factory floor.
       </h1>
       <p className="mt-4 max-w-2xl text-base leading-relaxed text-neutral-600">
-        Brainswarm Robotics Marketplace is the storefront for Brainswarm's robotics hardware —
+        Brainswarm Robotics Marketplace is the storefront for Brainswarm's robotics hardware:
         robots, kits, and components curated for education, research, and hands-on development.
         Brainswarm itself designs custom robots, computer vision pipelines, and edge AI systems,
         then supports them from first prototype through deployment. This site is where that
@@ -103,7 +103,7 @@ export default function About() {
       <section className="mt-14">
         <h2 className="text-xl font-semibold text-ink">Expertise that survives deployment</h2>
         <p className="mt-2 text-sm text-neutral-600">
-          Three areas we go deep in — everything else we take on is built out of them.
+          Three areas we go deep in; everything else we take on is built out of them.
         </p>
         <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-3">
           {EXPERTISE.map((item) => (

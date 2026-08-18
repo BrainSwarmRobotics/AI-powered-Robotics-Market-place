@@ -23,6 +23,8 @@ import AdminOrders from './pages/admin/AdminOrders';
 import AdminOrderDetail from './pages/admin/AdminOrderDetail';
 import AdminCoupons from './pages/admin/AdminCoupons';
 import AdminAnalytics from './pages/admin/AdminAnalytics';
+import About from './pages/About';
+import Contact from './pages/Contact';
 
 function ComingSoon({ title }) {
   return (
@@ -50,8 +52,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/account" element={<ComingSoon title="Account" />} />
-        <Route path="/about" element={<ComingSoon title="About Brainswarm" />} />
-        <Route path="/contact" element={<ComingSoon title="Contact" />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="/support/shipping" element={<ComingSoon title="Shipping & Delivery" />} />
         <Route path="/support/returns" element={<ComingSoon title="Returns" />} />
         <Route path="/support/track-order" element={<ComingSoon title="Track Order" />} />

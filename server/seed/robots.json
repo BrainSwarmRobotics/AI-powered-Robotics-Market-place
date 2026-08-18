@@ -15,7 +15,7 @@
     "Price": "220K",
     "Utility": "Education",
     "Educational Applications": "Embedded AI Labs: Students deploy models on the Raspberry Pi 5 to perform stereo-vision distance estimation and object tracking.",
-    "Research Applications": "Testing multi-sensor fusion for real-time 3D depth estimation and edge based semantic mapping",
+    "Research Applications": "Testing multi-sensor fusion for real-time 3D depth estimation and edge based semantic mapping.",
     "Documentation": "Yes",
     "Image Public ID": "robot1_fj0rvk"
   },
