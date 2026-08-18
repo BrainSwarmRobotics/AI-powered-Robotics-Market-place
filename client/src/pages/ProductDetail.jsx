@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Scale, ChevronLeft } from 'lucide-react';
+import { Scale, ChevronLeft, ShoppingCart, Check, Minus, Plus } from 'lucide-react';
 import { fetchProductById, clearSelectedProduct } from '../redux/slices/productSlice';
 import { toggleWishlist } from '../redux/slices/wishlistSlice';
 import { toggleCompare } from '../redux/slices/compareSlice';
+import { addToCart } from '../redux/slices/cartSlice';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import Card from '../components/ui/Card';
@@ -46,6 +47,8 @@ export default function ProductDetail() {
   const { id } = useParams();
   const dispatch = useDispatch();
   const [activeImage, setActiveImage] = useState(0);
+  const [qty, setQty] = useState(1);
+  const [justAdded, setJustAdded] = useState(false);
 
   const { selectedProduct: product, detailLoading, detailError } = useSelector(
     (state) => state.products
@@ -55,6 +58,7 @@ export default function ProductDetail() {
 
   const isWishlisted = product ? wishlistItems.some((p) => p._id === product._id) : false;
   const isComparing = product ? compareItems.some((p) => p._id === product._id) : false;
+  const outOfStock = product ? (product.stock ?? 0) <= 0 : false;
 
   useEffect(() => {
     dispatch(fetchProductById(id));
@@ -63,7 +67,15 @@ export default function ProductDetail() {
 
   useEffect(() => {
     setActiveImage(0);
+    setQty(1);
   }, [id]);
+
+  function handleAddToCart() {
+    if (!product || outOfStock) return;
+    dispatch(addToCart({ productId: product._id, qty }));
+    setJustAdded(true);
+    setTimeout(() => setJustAdded(false), 1500);
+  }
 
   if (detailLoading) {
     return <div className="py-24 text-center text-sm text-neutral-600">Loading product…</div>;
@@ -131,7 +143,44 @@ export default function ProductDetail() {
             <StockBadge stock={product.stock} />
           </div>
 
-          <div className="mt-5 flex items-center gap-2">
+          {/* Primary action: quantity + Add to Cart */}
+          <div className="mt-5 flex items-center gap-3">
+            <div className="flex items-center rounded-[var(--radius-control)] border border-neutral-200">
+              <button
+                type="button"
+                onClick={() => setQty((q) => Math.max(1, q - 1))}
+                disabled={qty <= 1 || outOfStock}
+                aria-label="Decrease quantity"
+                className="flex h-10 w-10 items-center justify-center text-neutral-600 hover:text-accent disabled:opacity-40"
+              >
+                <Minus size={14} />
+              </button>
+              <span className="w-8 text-center text-sm font-medium text-ink">{qty}</span>
+              <button
+                type="button"
+                onClick={() => setQty((q) => q + 1)}
+                disabled={outOfStock}
+                aria-label="Increase quantity"
+                className="flex h-10 w-10 items-center justify-center text-neutral-600 hover:text-accent disabled:opacity-40"
+              >
+                <Plus size={14} />
+              </button>
+            </div>
+
+            <Button
+              variant="primary"
+              size="lg"
+              onClick={handleAddToCart}
+              disabled={outOfStock}
+              className="flex-1"
+            >
+              {justAdded ? <Check size={16} /> : <ShoppingCart size={16} />}
+              {outOfStock ? 'Out of Stock' : justAdded ? 'Added to Cart' : 'Add to Cart'}
+            </Button>
+          </div>
+
+          {/* Secondary actions: wishlist + compare */}
+          <div className="mt-3 flex items-center gap-2">
             <WishlistButton
               active={isWishlisted}
               onClick={() => dispatch(toggleWishlist(product))}

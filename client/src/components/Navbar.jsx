@@ -6,6 +6,7 @@ import logo from '../assets/BSR_Logo.png';
 
 const PAGE_LINKS = [
   { label: 'All Products', to: '/products' },
+  { label: 'Cart', to: '/cart' },
   { label: 'Compare', to: '/compare' },
   { label: 'Wishlist', to: '/wishlist' },
   { label: 'About', to: '/about' },
