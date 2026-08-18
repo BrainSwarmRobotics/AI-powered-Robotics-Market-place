@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Facebook, Instagram, Linkedin, Youtube } from 'lucide-react';
+import { Facebook, Instagram, Linkedin } from 'lucide-react';
 import Button from './ui/Button';
 import Input from './ui/Input';
 import Badge from './ui/Badge';
@@ -42,10 +42,9 @@ const LINK_COLUMNS = [
 const PAYMENT_METHODS = ['Visa', 'Mastercard', 'Stripe', 'Cash on Delivery'];
 
 const SOCIALS = [
-  { label: 'Facebook', href: 'https://facebook.com', Icon: Facebook },
-  { label: 'Instagram', href: 'https://instagram.com', Icon: Instagram },
-  { label: 'LinkedIn', href: 'https://linkedin.com', Icon: Linkedin },
-  { label: 'YouTube', href: 'https://youtube.com', Icon: Youtube },
+  { label: 'Facebook', href: 'https://www.facebook.com/BrainSwarmrobotics/', Icon: Facebook },
+  { label: 'Instagram', href: 'https://www.instagram.com/brainswarmrobotics/', Icon: Instagram },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/company/brainswarmrobotics/posts/?feedView=all', Icon: Linkedin },
 ];
 
 export default function Footer() {
