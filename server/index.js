@@ -18,6 +18,7 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const userRoutes = require('./routes/userRoutes');
 const couponRoutes = require('./routes/couponRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
 
 // Debug line to see if Node is actually reading the URI 
 console.log("Checking loaded URI:", process.env.MONGODB_URI ? "Found! " : "NOT FOUND (Undefined) ");
@@ -48,6 +49,7 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 // listen to port
 const PORT = process.env.PORT || 5000;

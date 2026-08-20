@@ -11,6 +11,7 @@ import Badge from '../components/ui/Badge';
 import Card from '../components/ui/Card';
 import WishlistButton from '../components/ui/WishlistButton';
 import ImagePlaceholder from '../components/ImagePlaceholder';
+import ReviewsSection from '../components/ReviewsSection';
 
 function formatPrice(price) {
   if (price == null) return '—';
@@ -236,14 +237,7 @@ export default function ProductDetail() {
         </div>
       </div>
 
-      <Card className="mt-12">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-accent-blue">
-          Reviews
-        </h2>
-        <p className="mt-2 text-sm text-neutral-500">
-          Reviews aren't live yet — check back soon.
-        </p>
-      </Card>
+      <ReviewsSection productId={product._id} />
 
       <Card className="mt-4">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-accent-blue">

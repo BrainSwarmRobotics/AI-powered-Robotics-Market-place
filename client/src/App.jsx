@@ -23,6 +23,7 @@ import AdminOrders from './pages/admin/AdminOrders';
 import AdminOrderDetail from './pages/admin/AdminOrderDetail';
 import AdminCoupons from './pages/admin/AdminCoupons';
 import AdminAnalytics from './pages/admin/AdminAnalytics';
+import AdminReviews from './pages/admin/AdminReviews';
 import About from './pages/About';
 import Contact from './pages/Contact';
 
@@ -72,7 +73,7 @@ function App() {
           <Route path="orders" element={<AdminOrders />} />
           <Route path="orders/:id" element={<AdminOrderDetail />} />
           <Route path="coupons" element={<AdminCoupons />} />
-          <Route path="reviews" element={<AdminPlaceholder title="Reviews" />} />
+          <Route path="reviews" element={<AdminReviews />} />
           <Route path="analytics" element={<AdminAnalytics />} />
         </Route>
       </Route>
